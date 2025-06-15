@@ -1,0 +1,65 @@
+name: Build and Deploy Slides
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'project/src/slides/**/content.md'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Marp CLI
+        run: npm install -g @marp-team/marp-cli
+
+      - name: Detect changed slide directories
+        id: detect
+        run: |
+          changed_dirs=$(git diff --name-only HEAD^ HEAD | grep 'project/src/slides/.*/content.md' | sed -E 's|/content.md||' | sort -u | xargs)
+          echo "CHANGED_DIRS=$changed_dirs" >> $GITHUB_ENV
+
+      - name: Build HTML slides
+        if: env.CHANGED_DIRS != ''
+        run: |
+          mkdir -p dist
+          for dir in $CHANGED_DIRS; do
+            name=$(basename "$dir")
+            echo "Building $dir/content.md -> dist/$name.html"
+            marp "$dir/content.md" --theme-set ./project/src/themes/*.css -o "dist/$name/index.html" --allow-local-files
+            
+            if [ -d "$dir/images" ]; then
+              mkdir -p "dist/$name/images"
+              cp -r "$dir/images/"* "dist/$name/images/"
+            fi
+          done
+
+      - name: Make slide index script executable
+        if: env.CHANGED_DIRS != ''
+        run: chmod +x project/scripts/generate-index.sh
+
+      - name: Generate index.html
+        if: env.CHANGED_DIRS != ''
+        run: project/scripts/generate-index.sh
+
+      - name: Deploy to GitHub Pages
+        if: env.CHANGED_DIRS != ''
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
