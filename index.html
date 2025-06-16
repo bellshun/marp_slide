@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Slide Index</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    h1 { margin-bottom: 1rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5rem 0; }
+    a { text-decoration: none; color: #0366d6; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>📚 スライド一覧</h1>
+  <ul>
+    EOF
+
+    for dir in dist/*/; do
+      name=sample
+      echo "    <li><a href=\"./sample/\">sample</a></li>" >> dist/index.html
+    done
+
+    cat <<EOF >> dist/index.html
+  </ul>
+</body>
+</html>
