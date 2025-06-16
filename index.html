@@ -15,14 +15,7 @@
 <body>
   <h1>📚 スライド一覧</h1>
   <ul>
-    EOF
-
-    for dir in dist/*/; do
-      name=sample
-      echo "    <li><a href=\"./sample/\">sample</a></li>" >> dist/index.html
-    done
-
-    cat <<EOF >> dist/index.html
+    <li><a href="./sample/">sample</a></li>
   </ul>
 </body>
 </html>
