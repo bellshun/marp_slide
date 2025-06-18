@@ -38,7 +38,7 @@ jobs:
         if: env.CHANGED_DIRS != ''
         run: |
           mkdir -p dist
-          for dir in $CHANGED_DIRS; do
+          for dir in project/src/slides/*; do
             name=$(basename "$dir")
             echo "Building $dir/content.md -> dist/$name.html"
             marp "$dir/content.md" --theme-set ./project/src/themes/*.css -o "dist/$name/index.html" --allow-local-files
